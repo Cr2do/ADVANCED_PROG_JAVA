@@ -1,4 +1,5 @@
 package utils;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 
 /**
@@ -16,7 +17,7 @@ public class AnalyseurDeClasse {
 	// R�cup�ration d'un objet de type Class correspondant au nom pass� en param�tre et analyse en plusieurs �tapes
 
     Class<?> cl = Class.forName(nomClasse);  // Code � �crire
-    
+
     affichePackageDeLaClasse(cl, decalage); 
    
     afficheEnTeteClasse(cl, decalage);
@@ -65,6 +66,8 @@ public class AnalyseurDeClasse {
     /**
      *
      */
+
+    displayAnnotations(cl.getAnnotations(), decalage);
 
     System.out.print(decalage);
 
@@ -155,9 +158,11 @@ public class AnalyseurDeClasse {
       if (genericType instanceof ParameterizedType) {
         // Appelle afficheTypeFull pour afficher le type avec les paramètres génériques
         afficheTypeFull(field.getType(), genericType, decalage);
+        displayAnnotations(field.getAnnotations(), decalage);
       } else {
         // Appelle afficheTypeBasic pour afficher le type de base
         afficheTypeBasic(field.getType(), decalage);
+        displayAnnotations(field.getAnnotations(), decalage);
       }
 
       // Affiche le nom du champ
@@ -172,8 +177,10 @@ public class AnalyseurDeClasse {
     // System.out.println("NAME* :" + cl.getName());
     if (cl.isArray()) {
       System.out.println( decalage + cl.getComponentType().getTypeName() + " []");
+      displayAnnotations(cl.getAnnotations(), decalage);
     } else {
       System.out.println( decalage + cl.getTypeName());
+      displayAnnotations(cl.getAnnotations(), decalage);
     }
   }
 
@@ -291,6 +298,15 @@ public class AnalyseurDeClasse {
       System.out.println(); // Passe à la ligne suivante après chaque paramètre
     }
    }
+
+  public static void displayAnnotations(Annotation[] annot, String decalage) {
+    if (annot.length > 0) {
+      System.out.println("// Annotation");
+      for (Annotation annotation : annot) {
+        System.out.println("@" + annotation.annotationType().getName() + decalage);
+      }
+    }
+  }
 
   public static void main(String[] args) {
 	// Code � �crire : :

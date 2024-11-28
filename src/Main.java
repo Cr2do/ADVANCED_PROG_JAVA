@@ -2,6 +2,7 @@ import utils.AnalyseurDeClasse;
 import utils.Personne;
 
 import java.util.ArrayList;
+import utils.annotations.Empty;
 
 public class Main {
 
@@ -15,7 +16,7 @@ public class Main {
 
         String testClass = "java.util.ArrayList";
         // String testClassSecond = personnes.getClass().getName();
-        AnalyseurDeClasse.analyseClasse("java.util.ArrayList", "");
+        AnalyseurDeClasse.analyseClasse("utils.annotations.Empty", "");
         // System.out.println(AnalyseurDeClasse.getClasse(testClass));
 
         // AnalyseurDeClasse.affichePackageDeLaClasse( AnalyseurDeClasse.getClasse(testClass), "2" );
