@@ -29,6 +29,8 @@ public class Main {
         // Désérialisation
         promotion.retrieveEtudiants(fileName);
 
+
+
         // Vérification après désérialisation
         System.out.println("\nAprès désérialisation :");
         promotion.afficherEtudiants();
