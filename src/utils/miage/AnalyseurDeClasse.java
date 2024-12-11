@@ -1,6 +1,9 @@
-package utils;
+package utils.miage;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @version 1.2 - 5 novembre 2024
@@ -18,24 +21,26 @@ public class AnalyseurDeClasse {
 
     Class<?> cl = Class.forName(nomClasse);  // Code � �crire
 
-    affichePackageDeLaClasse(cl, decalage); 
-   
-    afficheEnTeteClasse(cl, decalage);
-    
-    System.out.println(decalage + "// Inner Classes");
-    afficheInnerClasses(cl, decalage);
+//    affichePackageDeLaClasse(cl, decalage);
+//
+//    afficheEnTeteClasse(cl, decalage);
+//
+//    System.out.println(decalage + "// Inner Classes");
+//    afficheInnerClasses(cl, decalage);
+//
+//    System.out.println(decalage + "// Champs");
+//    afficheAttributs(cl, decalage);
+//
+//    System.out.println("\n" + decalage + "// Constructeurs");
+//    afficheConstructeurs(cl, decalage);
+//
+//    System.out.println(decalage + "\n" + decalage + "// M�thodes");
+//    afficheMethodes(cl, decalage);
 
-    System.out.println(decalage + "// Champs");
-    afficheAttributs(cl, decalage);
-
-    System.out.println("\n" + decalage + "// Constructeurs");
-    afficheConstructeurs(cl, decalage);
-
-    System.out.println(decalage + "\n" + decalage + "// M�thodes");
-    afficheMethodes(cl, decalage);
-
+    System.out.println(decalage + "\n" + decalage + "// Annotations Analyses");
+    analyserAnnotation(cl);
     // L'accolade fermante de fin de classe !
-    System.out.println(decalage + "}");
+    // System.out.println(decalage + "}");
   }
 
   public static Class<?> getClasse(String nomClasse) throws ClassNotFoundException {
@@ -46,7 +51,7 @@ public class AnalyseurDeClasse {
   }
 
   public static void affichePackageDeLaClasse(Class<?> cl, String decalage) {
-	 // Affiche le package de la classe : package.... 
+	 // Affiche le package de la classe : package...
      // Code � �crire
     System.out.println( "Package : " + cl.getPackage().getName());
   }
@@ -306,6 +311,135 @@ public class AnalyseurDeClasse {
         System.out.println("@" + annotation.annotationType().getName() + decalage);
       }
     }
+  }
+
+
+  public static void analyserAnnotation(Class<?> cls) {
+
+    List<Class<?>> classes2024 = new ArrayList<>();
+    List<Field> fields2024 = new ArrayList<>();
+    List<Method> methods2024 = new ArrayList<>();
+    List<Field> fieldsTD1And2 = new ArrayList<>();
+    List<Method> nonFinalizedMethods2024 = new ArrayList<>();
+
+    // Vérifier les annotations de classe pour l'année 2024
+    if (cls.isAnnotationPresent(InfoG.class)) {
+      InfoG classAnnotation = cls.getAnnotation(InfoG.class);
+      if (classAnnotation.anneeUniversitaire() == 2024) {
+        classes2024.add(cls);
+      }
+    }
+
+    // La liste des champs de l’année universitaire 2024
+    for (Field field : cls.getDeclaredFields()) {
+      if (field.isAnnotationPresent(InfoG.class)) {
+        InfoG fieldAnnotation = field.getAnnotation(InfoG.class);
+        if (fieldAnnotation.anneeUniversitaire() == 2024) {
+          fields2024.add(field);
+        }
+      }
+    }
+
+    // La liste des champs de l’année universitaire 2024 pendant la seance TD1 et TD2
+    for (Field field : cls.getDeclaredFields()) {
+      if (field.isAnnotationPresent(InfoG.class)) {
+        InfoG fieldAnnotation = field.getAnnotation(InfoG.class);
+        if (fieldAnnotation.anneeUniversitaire() == 2024) {
+          if (fieldAnnotation.seanceTD() == 1 || fieldAnnotation.seanceTD() == 2) {
+            fieldsTD1And2.add(field);
+          }
+        }
+      }
+    }
+
+    // La liste des méthodes de l’année universitaire 2024
+    for (Method method : cls.getDeclaredMethods()) {
+      if (method.isAnnotationPresent(InfoG.class)) {
+        InfoG methodAnnotation = method.getAnnotation(InfoG.class);
+        if (methodAnnotation.anneeUniversitaire() == 2024) {
+          methods2024.add(method);
+        }
+      }
+    }
+
+    // La liste des méthodes non finalisées créées lors de l’année universitaire 2024
+    // TODO : un peu dubitatif sur ce point en ce qui concerne le check sur l'année car une methode n'as pas de nom prenom so à voir
+    for (Method method : cls.getDeclaredMethods()) {
+      if (method.isAnnotationPresent(InfoG.class)) {
+        InfoG methodAnnotationG = method.getAnnotation(InfoG.class);
+        if (methodAnnotationG.anneeUniversitaire() == 2024) {
+          if (method.isAnnotationPresent(InfoD.class)) {
+            InfoD methodAnnotationD = method.getAnnotation(InfoD.class);
+            if (methodAnnotationD.etat_competude() != InfoD.ETAT_COMPLETUDE.VERSION_FINALISE) {
+              nonFinalizedMethods2024.add(method);
+            }
+          }
+        }
+      }
+    }
+
+    // Affichage des résultats
+    System.out.println("Année universitaire 2024");
+    System.out.println("Classes annotées : " + classes2024);
+    System.out.println("Champs annotés : " + fields2024);
+    System.out.println("Champs des TD 1 et 2 : " + fieldsTD1And2);
+    System.out.println("Méthodes non finalisées : " + nonFinalizedMethods2024);
+
+    // Calculs des ratios
+    int totalMethods2024 = methods2024.size();
+    int finalizedMethods = 0;
+    int draftPartialMethods = 0;
+    int generatedMethods = 0;
+    int testedMethods = 0;
+
+
+    for (Method method : methods2024) {
+      if (method.isAnnotationPresent(InfoD.class)) {
+        InfoD methodAnnotation = method.getAnnotation(InfoD.class);
+
+        if (methodAnnotation.etat_competude() == InfoD.ETAT_COMPLETUDE.VERSION_FINALISE) {
+          finalizedMethods++;
+        } else if (methodAnnotation.etat_competude() == InfoD.ETAT_COMPLETUDE.DRAFT_PARTIEL) {
+          draftPartialMethods++;
+        }
+
+        if (methodAnnotation.generated()) {
+          generatedMethods++;
+        }
+
+        if (methodAnnotation.tested()) {
+          testedMethods++;
+        }
+      }
+    }
+
+    int nonGeneratedMethods = totalMethods2024 - generatedMethods;
+
+    System.out.println("totalMethods2024 " + totalMethods2024);
+    System.out.println("finalizedMethods " + finalizedMethods);
+    System.out.println("draftPartialMethods " + draftPartialMethods);
+    System.out.println("generatedMethods " + generatedMethods);
+    System.out.println("testedMethods " + testedMethods);
+
+    System.out.println("***********************************************");
+
+
+
+    System.out.println("totalMethods2024 " + totalMethods2024);
+    System.out.println("finalizedMethods " + finalizedMethods);
+    System.out.println("draftPartialMethods " + draftPartialMethods);
+    System.out.println("generatedMethods " + generatedMethods);
+    System.out.println("testedMethods " + testedMethods);
+
+    System.out.println("***********************************************");
+
+
+    System.out.println("Ratio finalisées / total : " + (totalMethods2024 > 0 ? (double) finalizedMethods / totalMethods2024 : 0));
+    System.out.println("Ratio draft partiel / total : " + (totalMethods2024 > 0 ? (double) draftPartialMethods / totalMethods2024 : 0));
+    System.out.println("Ratio générées / total : " + (totalMethods2024 > 0 ? (double) generatedMethods / totalMethods2024 : 0));
+    System.out.println("Ratio finalisées / non générées : " + (nonGeneratedMethods > 0 ? (double) finalizedMethods / nonGeneratedMethods : 0));
+    System.out.println("Ratio testées / non générées : " + (nonGeneratedMethods > 0 ? (double) testedMethods / nonGeneratedMethods : 0));
+
   }
 
   public static void main(String[] args) {

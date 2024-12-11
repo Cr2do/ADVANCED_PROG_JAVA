@@ -1,6 +1,4 @@
-package utils.annotations;
-
-import java.lang.annotation.Documented;
+package utils.miage;
 
 @Deprecated
 public class Empty {
